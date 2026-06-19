@@ -120,6 +120,21 @@ After the call completes:
 
 Graph-based routing engines do not work directly with geometries. They work with **graphs**: sets of **nodes** (vertices) connected by **edges**. Before any shortest-path or network-analysis query can run, the engine must know which node an edge starts at (`source`) and which node it ends at (`target`).
 
+Consider a simple three-node network:
+
+```
+Node A -------Edge 1-------- Node B -------Edge 2-------- Node C
+(id=1)        source=1       (id=2)        source=2       (id=3)
+              target=2                     target=3
+```
+
+| Edge | source | target | Meaning |
+|------|--------|--------|---------|
+| Edge 1 | 1 (A) | 2 (B) | travels from A to B |
+| Edge 2 | 2 (B) | 3 (C) | travels from B to C |
+
+To route from **A → C** the engine looks up edges where `source = 1`, follows Edge 1 to node 2, then finds edges where `source = 2`, follows Edge 2 to node 3 — done. Without the integer `source` and `target` values the engine has no way to know that Edge 1 and Edge 2 share node B, so the path from A to C can never be found.
+
 ### pgRouting
 
 pgRouting extends PostGIS with graph algorithms (Dijkstra, A\*, Bellman-Ford, Travelling Salesman, etc.). Every pgRouting algorithm requires the edge table to expose `source` and `target` integer columns that correspond to rows in an accompanying vertices table:
